@@ -89,5 +89,6 @@ python run_custom_classifier.py \
     --use_gpu=true \
     --num_gpu_cores=${num_gpu_cores} \
     --use_fp16=false \
-    --output_dir=output_test_multi_gpus_cla
+    --output_dir=output_test_multi_gpus_cla \
+    --cla_nums=16
 echo "task is done..."
