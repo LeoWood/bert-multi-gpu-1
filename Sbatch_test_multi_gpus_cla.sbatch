@@ -81,7 +81,7 @@ python run_custom_classifier.py \
     --data_dir=/public/home/zzx6320/lh/Projects/bert/data/data_wanfang_16000 \
     --vocab_file=/public/home/zzx6320/lh/Projects/bert/models/chinese_L-12_H-768_A-12/chinese_L-12_H-768_A-12/vocab.txt \
     --bert_config_file=/public/home/zzx6320/lh/Projects/bert/models/chinese_L-12_H-768_A-12/chinese_L-12_H-768_A-12/bert_config.json \
-    --init_checkpoint=/cfs/models/bert-large-uncased/bert_model.ckpt \
+    --init_checkpoint=/public/home/zzx6320/lh/Projects/bert/models/chinese_L-12_H-768_A-12/chinese_L-12_H-768_A-12/bert_model.ckpt \
     --max_seq_length=${max_seq_length} \
     --train_batch_size=${train_batch_size} \
     --learning_rate${learning_rate} \
