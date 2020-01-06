@@ -3,6 +3,9 @@
 #SBATCH -N 1
 #SBATCH -J test_cla_multi_gpus
 
+export MIOPEN_USER_DB_PATH=/tmp/tensorflow-miopen-${USER}-2.8
+export MIOPEN_DEBUG_DISABLE_FIND_DB=1
+
 # default setting
 max_seq_length=400
 num_gpu_cores=4
