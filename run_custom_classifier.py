@@ -22,6 +22,7 @@ import collections
 import csv
 import json
 import os
+from sklearn import metrics
 
 import numpy as np
 import tensorflow as tf
@@ -1148,6 +1149,12 @@ def main(_):
             json.dump(result, writer, indent=4, cls=ExtEncoder)
 
     if FLAGS.do_predict:
+        true_labels = []
+        with open(os.path.join(FLAGS.data_dir, "test.tsv"), 'r', encoding='utf-8') as f:
+            for line in f.readlines():
+                line = line.strip()
+                true_labels.append(int(line.split('\t')[0]))
+
         predict_examples = processor.get_test_examples(FLAGS.data_dir)
         num_actual_predict_examples = len(predict_examples)
         if FLAGS.use_tpu:
@@ -1179,12 +1186,15 @@ def main(_):
 
         result = estimator.predict(input_fn=predict_input_fn)
 
+        predictions = []
         output_predict_file = os.path.join(FLAGS.output_dir, "test_results.tsv")
         with tf.gfile.GFile(output_predict_file, "w") as writer:
             num_written_lines = 0
             tf.logging.info("***** Predict results *****")
             for (i, prediction) in enumerate(result):
                 probabilities = prediction["probabilities"]
+                a = probabilities.tolist()
+                predictions.append(a.index(max(a)))
                 if i >= num_actual_predict_examples:
                     break
                 output_line = "\t".join(
@@ -1193,6 +1203,28 @@ def main(_):
                 writer.write(output_line)
                 num_written_lines += 1
         assert num_written_lines == num_actual_predict_examples
+
+        count = 0
+        for i in range(len(predictions)):
+            if predictions[i] == true_labels[i]:
+                count += 1
+        print("Average accuracy: ", count / len(predictions))
+
+        with open(os.path.join(FLAGS.data_dir, "id2label.json"), 'r', encoding='utf-8') as f:
+            ld2label = json.load(f)
+
+        cla_labels = [i for i in range(FLAGS.cla_nums)]
+        report = metrics.classification_report(y_true=true_labels,
+                                               y_pred=predictions,
+                                               labels=cla_labels,
+                                               target_names=[ld2label[str(i)].split()[0] for i in cla_labels], digits=4)
+
+        confution_matrix = metrics.confusion_matrix(y_true=true_labels,
+                                                    y_pred=predictions, labels=cla_labels)
+        print(report)
+        print(confution_matrix)
+        with open(os.path.join(FLAGS.output_dir, "eval_report.txt"), 'w', encoding='utf-8') as f:
+            f.write(report)
 
 
 if __name__ == "__main__":
